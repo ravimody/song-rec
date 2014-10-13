@@ -1,11 +1,21 @@
 from scipy import sparse
 from sklearn.preprocessing import normalize
 
+dataset = get_rand_dataset(1000, 20000)
+recommendTracks(dataset, forUser = 0, nRecs = 10, nTopUsers = 10)
 
-# 
-def find_similar_users(dataset, user, num_similar_users):
-   # normalize matrix so each user's plays sum to 1 
-   normalized_dataset = normalize(dataset,norm='l1', axis=1)
+def recommendTracks(dataset, forUser, nRecs, nTopUsers):
+   normalized_dataset = normalize_dataset(dataset)
+   similar_users = find_similar_users(normalized_dataset, forUser, nTopUsers)
+   return(create_recommendations(normalized_dataset, similar_users, nRecs))
+
+def create_recommendations(normalized_dataset, similar_users, num_recs):
+   similar_users_plays = normalized_dataset[similar_users,:]
+   similar_songs = similar_users_plays.sum(axis = 0)
+   top_similar_songs = similar_songs.argsort()[0:num_recs]
+   return(array(top_similar_songs).flatten())
+
+def find_similar_users(normalized_dataset, user, num_similar_users):
    # get the dot product of the user with every user, this is effectively a similarity score 
    score = normalized_dataset[user,:] * normalized_dataset.transpose()
    # flatten matrix into 1-d array of scores, give -infinity score to user so he's not selected
@@ -14,6 +24,9 @@ def find_similar_users(dataset, user, num_similar_users):
    similar_users = (-score).argsort()[0:num_similar_users]
    return(similar_users)
    
+# normalize matrix so each user's plays sum to 1 
+def normalize_dataset(dataset):
+   return(normalize(dataset,norm='l1', axis=1) )
 
 def get_rand_dataset(num_users = 10000, num_songs = 1000000, avg_songs_per_user = 10, max_plays = 20, seed = 100):
    density = float(avg_songs_per_user) / num_songs
