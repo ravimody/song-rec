@@ -1,18 +1,26 @@
 from scipy import sparse
 from sklearn.preprocessing import normalize
+from numpy import array
+from numpy import inf
 
+# run an example test:
 dataset = get_rand_dataset(1000, 20000)
 recommendTracks(dataset, forUser = 0, nRecs = 10, nTopUsers = 10)
 
 def recommendTracks(dataset, forUser, nRecs, nTopUsers):
    normalized_dataset = normalize_dataset(dataset)
    similar_users = find_similar_users(normalized_dataset, forUser, nTopUsers)
-   return(create_recommendations(normalized_dataset, similar_users, nRecs))
+   return(create_recommendations(normalized_dataset, forUser, similar_users, nRecs))
 
-def create_recommendations(normalized_dataset, similar_users, num_recs):
+def create_recommendations(normalized_dataset, user, similar_users, num_recs):
+   # for the top similar_users users sum their play scores
    similar_users_plays = normalized_dataset[similar_users,:]
    similar_songs = similar_users_plays.sum(axis = 0)
-   top_similar_songs = similar_songs.argsort()[0:num_recs]
+   # zero the score of tracks already listened to by user
+   songs_already_heard = normalized_dataset[user,:].nonzero()[1]
+   similar_songs[:,songs_already_heard] = 0
+   # pick the tracks with the num_recs highest summed scores
+   top_similar_songs = (-similar_songs).argsort()[0:num_recs]
    return(array(top_similar_songs).flatten())
 
 def find_similar_users(normalized_dataset, user, num_similar_users):
