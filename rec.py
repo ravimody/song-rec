@@ -3,13 +3,16 @@ from sklearn.preprocessing import normalize
 
 
 # 
-def find_similar_users(dataset, user, num_users):
+def find_similar_users(dataset, user, num_similar_users):
    # normalize matrix so each user's plays sum to 1 
    normalized_dataset = normalize(dataset,norm='l1', axis=1)
-   
    # get the dot product of the user with every user, this is effectively a similarity score 
    score = normalized_dataset[user,:] * normalized_dataset.transpose()
-   
+   # flatten matrix into 1-d array of scores, give -infinity score to user so he's not selected
+   score = array(score.todense()).flatten()  
+   score[user] = -inf
+   similar_users = (-score).argsort()[0:num_similar_users]
+   return(similar_users)
    
 
 def get_rand_dataset(num_users = 10000, num_songs = 1000000, avg_songs_per_user = 10, max_plays = 20, seed = 100):
