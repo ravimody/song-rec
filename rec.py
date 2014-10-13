@@ -20,8 +20,9 @@ def create_recommendations(normalized_dataset, user, similar_users, num_recs):
    songs_already_heard = normalized_dataset[user,:].nonzero()[1]
    similar_songs[:,songs_already_heard] = 0
    # pick the tracks with the num_recs highest summed scores
+   similar_songs = array(similar_songs).flatten()
    top_similar_songs = (-similar_songs).argsort()[0:num_recs]
-   return(array(top_similar_songs).flatten())
+   return(top_similar_songs)
 
 def find_similar_users(normalized_dataset, user, num_similar_users):
    # get the dot product of the user with every user, this is effectively a similarity score 
