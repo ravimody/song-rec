@@ -39,16 +39,13 @@ def create_recommendations(normalized_dataset, user, similar_users, num_recs):
    return(top_similar_songs)
 
 # *** code to generate some test data ***
-
 def get_rand_dataset(num_users = 10000, num_songs = 1000000, avg_songs_per_user = 100, max_plays = 50, seed = 100):
    density = float(avg_songs_per_user) / num_songs
    dataset = sparse.rand(num_users, num_songs, density, random_state = seed, format = 'csr') * max_plays
    dataset = dataset.ceil()
    return(dataset)
-   # todo rhm: remove users with no listens; for now i'll assume this will generate users with at least one listen   
 
 # *** benchmark generating 10 recommendations from 20 users ***
-
 dataset = get_rand_dataset(10000, 1000000)
 %timeit recommendTracks(dataset, forUser = 0, nRecs = 100, nTopUsers = 20)
 # 10 loops, best of 3: 99.3 ms per loop (on 2011 macbook air with 4GB of ram)
